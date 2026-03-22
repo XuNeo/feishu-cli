@@ -1,18 +1,3 @@
----
-name: feishu-cli-board
-description: >-
-  飞书画板全功能操作：创建画板、绘制架构图/流程图/看板（通过 create-notes API 精确控制节点位置和样式）、
-  导入 Mermaid/PlantUML 图表、下载画板图片、获取/复制画板节点。
-  当用户请求"画个图"、"画架构图"、"画流程图"、"画板"、"whiteboard"、"create-notes"、
-  "在飞书里画图"、"画个看板"、"可视化"、"节点图"时使用。
-  也适用于：用户给出一组实体和关系，期望在飞书文档中生成可视化图表的场景。
-  与 Mermaid 导入的区别：Mermaid 由飞书服务端自动排版，create-notes 可精确控制坐标、颜色、连线，
-  适合需要精排的架构图和看板。
-argument-hint: "[whiteboard_id]"
-user-invocable: true
-allowed-tools: Bash, Read, Write
----
-
 # 飞书画板操作技能
 
 ## 前置条件

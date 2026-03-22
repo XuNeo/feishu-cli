@@ -1,0 +1,23 @@
+{
+  "skill_name": "feishu-cli",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我查一下最近和李桂丁（open_id: ou_7cda753710ba2fa323b5f3e51bfa61aa）的私聊记录，我想看看我们最近聊了什么",
+      "expected_output": "使用 msg p2p-chat-id 获取私信 chat_id，然后用 msg history 读取消息历史，展示聊天内容",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "我想把一个本地的 Markdown 文件 /tmp/report.md 导入到飞书，创建一个叫「Q1 工作总结」的文档，然后把这个文档的链接发给 test@xiaomi.com",
+      "expected_output": "先用 doc import 导入 Markdown 创建文档，再用 msg send 发送文档链接，正确引用 references/import.md 和 references/msg-send.md",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "查一下我加入的最近活跃的 10 个群聊，把每个群的名字和群ID列出来",
+      "expected_output": "使用 msg list-chats --limit 10 命令，正确展示群名和 chat_id",
+      "files": []
+    }
+  ]
+}

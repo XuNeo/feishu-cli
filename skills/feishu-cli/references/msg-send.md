@@ -1,18 +1,3 @@
----
-name: feishu-cli-msg
-description: >-
-  飞书消息发送。发送消息（text/post/interactive 卡片等 11 种类型）、回复消息、
-  转发/合并转发。使用 App Token（Bot 身份），无需登录。
-  当用户请求"发消息"、"回复"、"转发"、"合并转发"、"发通知"、"发卡片"、
-  "给某人发飞书消息"、"通知某人"时使用，即使没有明确说"发送"，
-  只要意图是把信息传达给某人，都应使用此技能。
-  注意：Reaction/Pin/删除/获取消息详情/消息历史/搜索群聊/群聊管理
-  请使用 feishu-cli-chat 技能（需 User Token）。
-argument-hint: <receive_id> [--msg-type <type>]
-user-invocable: true
-allowed-tools: Bash, Read, Write
----
-
 # 飞书消息发送与互动技能
 
 通过 feishu-cli 发送飞书消息、回复、转发、Reaction、Pin 等互动操作。

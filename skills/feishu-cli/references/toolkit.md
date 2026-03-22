@@ -1,18 +1,3 @@
----
-name: feishu-cli-toolkit
-description: >-
-  飞书综合工具箱：电子表格、日历日程、任务管理、画板操作、PlantUML 图表、
-  文件管理、素材上传下载、文档评论、知识库、用户通讯录、文档附件下载。
-  当用户请求操作飞书表格、查看日历、创建任务、操作画板、生成 PlantUML、
-  管理文件、上传素材、查看评论、查看知识库、查询用户信息、查询部门、
-  下载文档附件时使用。
-  注意：群聊浏览/管理请使用 feishu-cli-chat，搜索请使用 feishu-cli-search，
-  发送消息请使用 feishu-cli-msg。
-argument-hint: <module> <command> [args]
-user-invocable: true
-allowed-tools: Bash, Read, Write
----
-
 # 飞书综合工具箱
 
 覆盖 feishu-cli 的 13 个功能模块，提供命令速查和核心用法。复杂模块的详细参考文档在 `references/` 目录中。

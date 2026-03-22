@@ -1,14 +1,3 @@
----
-name: feishu-cli-doc-guide
-description: >-
-  飞书文档创建前的兼容性检查规范。覆盖 Mermaid/PlantUML 语法限制（8 种图表类型的飞书安全写法）、
-  表格自动拆分规则（9×9 限制）、Callout/公式/图片处理、API 限制与容错机制。
-  被 feishu-cli-write、feishu-cli-import 等技能引用，在生成将要导入飞书的 Markdown 之前必须参考。
-  确保内容兼容飞书，避免导入失败。
-user-invocable: false
-allowed-tools: Read
----
-
 # 飞书文档创建规范指南
 
 ## 1. 概述

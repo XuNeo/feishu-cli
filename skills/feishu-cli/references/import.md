@@ -1,15 +1,3 @@
----
-name: feishu-cli-import
-description: >-
-  从 Markdown 文件导入创建飞书文档。支持嵌套列表、Mermaid/PlantUML 图表自动转画板、
-  大表格自动拆分、公式、Callout 高亮块。当用户请求"导入 Markdown"、"从 md 创建文档"、
-  "从 md 文件创建文档"、"把 Markdown 转换到飞书"、"上传 Markdown"、"Markdown 转飞书"、
-  "md 导入"、"批量导入"时使用。
-argument-hint: <markdown_file> [--title "标题"] [--verbose]
-user-invocable: true
-allowed-tools: Bash, Read
----
-
 # Markdown 导入技能
 
 从本地 Markdown 文件创建或更新飞书云文档。**支持 Mermaid/PlantUML 图表转飞书画板、大表格自动拆分**。
@@ -213,17 +201,33 @@ $\int_{0}^{\infty} e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$
   导入块数: 25
 ```
 
+**提取文档链接**（导入后发给别人时用）：
+
+```bash
+# 导入并捕获输出
+OUTPUT=$(feishu-cli doc import /tmp/report.md --title "Q1 工作总结")
+echo "$OUTPUT"
+# 从输出中提取链接（格式固定为 https://feishu.cn/docx/<document_id>）
+DOC_URL=$(echo "$OUTPUT" | grep -oP 'https://[^\s]+')
+
+# 再发消息
+feishu-cli msg send \
+  --receive-id-type email \
+  --receive-id user@company.com \
+  --text "文档已创建：$DOC_URL"
+```
+
 ## 示例
 
 ```bash
 # 创建新文档
-/feishu-import ./meeting-notes.md --title "会议纪要"
+feishu-cli doc import ./meeting-notes.md --title "会议纪要"
 
 # 更新现有文档
-/feishu-import ./updated-spec.md --document-id <document_id>
+feishu-cli doc import ./updated-spec.md --document-id <document_id>
 
 # 带图片导入（自动上传本地和网络图片）
-/feishu-import ./blog-post.md --title "博客文章" --upload-images
+feishu-cli doc import ./blog-post.md --title "博客文章" --upload-images
 ```
 
 ## 已验证功能

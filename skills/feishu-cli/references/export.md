@@ -1,15 +1,3 @@
----
-name: feishu-cli-export
-description: >-
-  将飞书文档或知识库文档导出为 Markdown 文件，或导出为 PDF/Word 等格式（异步任务）。
-  当用户请求"导出文档"、"导出为 Markdown"、"转换为 Markdown"、"保存为 md"、
-  "导出 PDF"、"导出 Word"、"下载文档"时使用。
-  本技能专注于导出操作。从本地 DOCX 文件导入请使用 feishu-cli-import。
-argument-hint: <document_id|node_token|url> [output_path]
-user-invocable: true
-allowed-tools: Bash, Read
----
-
 # 飞书文档导出技能
 
 将飞书云文档或知识库文档导出为本地 Markdown 文件，或导出为 PDF/Word 等格式。

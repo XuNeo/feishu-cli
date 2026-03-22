@@ -1,14 +1,3 @@
----
-name: feishu-cli-read
-description: >-
-  只读操作，不修改文档内容。读取飞书云文档或知识库内容，分析文档结构。当用户请求"查看"、"阅读"、"分析"、"读取"、
-  "打开"、"read"、"view" 飞书文档或知识库时使用。支持通过文档 ID、知识库 Token 或 URL 读取。
-  Markdown 作为中间格式存储在 /tmp 目录。如需写入请使用 feishu-cli-write。
-argument-hint: <document_id|node_token|url>
-user-invocable: true
-allowed-tools: Bash, Read, Grep
----
-
 # 飞书文档阅读技能
 
 从飞书云文档或知识库读取内容，转换为 Markdown 格式后进行分析和展示。
