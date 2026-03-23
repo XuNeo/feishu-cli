@@ -67,24 +67,40 @@ feishu-cli msg list-chats --limit 50 --max-members 150 -o json
 ### 获取消息
 
 ```bash
-# 最近 50 条
-feishu-cli msg history \
-  --container-id oc_xxx \
-  --container-id-type chat \
-  --page-size 50 --sort-type ByCreateTimeDesc \
-  -o json
-
-# 指定时间范围（毫秒时间戳）
+# 获取最近 50 条
 feishu-cli msg history \
   --container-id oc_xxx --container-id-type chat \
-  --start-time 1773778860000 \
-  -o json
+  --page-size 50 --sort-type ByCreateTimeDesc -o json
 
-# 翻页
-feishu-cli msg history \
-  --container-id oc_xxx --container-id-type chat \
-  --page-token "上次返回的token" \
-  -o json
+# 指定时间范围（⚠️ start-time/end-time 是秒级，不是毫秒）
+feishu-cli msg history --container-id oc_xxx --container-id-type chat \
+  --start-time 1773778860 -o json
+```
+
+话题群需要额外获取线程回复 → 读 `references/thread-replies.md`
+
+### 解析消息内容
+
+两个关键陷阱：
+- `create_time` 是**毫秒**，需 `//1000` 再传给 `fromtimestamp`
+- `post` 类型的 content 是二维数组 `[[{tag, text/img/a}]]`，不是 `{"text":"..."}`
+
+| msg_type | content 取值方式 |
+|----------|---------|
+| text | `c['text']` |
+| image | `c['image_key']` |
+| post | 遍历 `c['content']` 二维数组，按 `tag` 取 text/image_key/href |
+| file | `c['file_key']`, `c['file_name']` |
+
+```python
+import json, datetime
+ts = int(msg['create_time']) // 1000  # ⚠️ 毫秒转秒
+c = json.loads(msg['body']['content'])
+if msg['msg_type'] == 'post':
+    text = ' '.join(el.get('text', el.get('image_key', ''))
+                    for para in c.get('content', []) for el in para)
+else:
+    text = c.get('text', c.get('image_key', str(c)[:100]))
 ```
 
 话题群需要额外获取线程回复 → 读 `references/thread-replies.md`
