@@ -29,13 +29,24 @@ var tasklistCmd = &cobra.Command{
 var tasklistCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "创建任务清单",
-	Long: `创建新的任务清单。
+	Long: `创建新的任务清单，可选择关联到群聊实现群任务功能。
 
 参数:
   --name, -n    清单名称（必填）
+  --chat-id     关联群聊的 chat_id（oc_xxx 格式）；
+                关联后群内所有成员自动获得编辑权限，
+                向该清单添加任务即成为群任务
+
+群任务创建流程:
+  1. 创建关联群聊的任务清单
+     feishu-cli tasklist create --name "项目清单" --chat-id oc_xxx
+  2. 把任务加入该清单（成为群任务）
+     feishu-cli task create --summary "任务标题" --tasklist <tasklist_guid>
 
 示例:
-  feishu-cli tasklist create --name "项目清单"`,
+  feishu-cli tasklist create --name "项目清单"
+  feishu-cli tasklist create --name "项目群任务" --chat-id oc_a0553eda9014c201e6969b478895c230
+  feishu-cli tasklist create --name "项目清单" -o json`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if err := config.Validate(); err != nil {
 			return err
@@ -44,9 +55,10 @@ var tasklistCreateCmd = &cobra.Command{
 		token := resolveOptionalUserToken(cmd)
 
 		name, _ := cmd.Flags().GetString("name")
+		chatID, _ := cmd.Flags().GetString("chat-id")
 		output, _ := cmd.Flags().GetString("output")
 
-		tl, err := client.CreateTasklist(name, token)
+		tl, err := client.CreateTasklist(name, chatID, token)
 		if err != nil {
 			return err
 		}
@@ -58,6 +70,10 @@ var tasklistCreateCmd = &cobra.Command{
 		fmt.Println("任务清单创建成功！")
 		fmt.Printf("  清单 ID: %s\n", tl.Guid)
 		fmt.Printf("  名称: %s\n", tl.Name)
+		if chatID != "" {
+			fmt.Printf("  关联群聊: %s\n", chatID)
+			fmt.Printf("  提示: 用 task create --tasklist %s --summary \"任务标题\" 创建群任务\n", tl.Guid)
+		}
 		if tl.Url != "" {
 			fmt.Printf("  链接: %s\n", tl.Url)
 		}
@@ -202,6 +218,7 @@ func init() {
 
 	tasklistCmd.AddCommand(tasklistCreateCmd)
 	tasklistCreateCmd.Flags().StringP("name", "n", "", "清单名称（必填）")
+	tasklistCreateCmd.Flags().String("chat-id", "", "关联群聊的 chat_id（oc_xxx 格式），关联后群内成员自动获得编辑权限")
 	tasklistCreateCmd.Flags().StringP("output", "o", "", "输出格式（json）")
 	tasklistCreateCmd.Flags().String("user-access-token", "", "User Access Token（用户授权令牌）")
 	mustMarkFlagRequired(tasklistCreateCmd, "name")

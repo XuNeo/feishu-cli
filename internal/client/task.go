@@ -24,9 +24,11 @@ type TaskInfo struct {
 type CreateTaskOptions struct {
 	Summary        string
 	Description    string
-	DueTimestamp   int64  // Unix milliseconds
-	OriginHref     string // URL for task origin
-	OriginPlatform string // Platform name for origin
+	DueTimestamp   int64    // Unix milliseconds
+	OriginHref     string   // URL for task origin
+	OriginPlatform string   // Platform name for origin
+	TasklistGuids  []string // 加入的任务清单 GUID 列表（群任务：先创建关联群聊的清单，再把任务加入该清单）
+	Assignees      []string // 负责人的 open_id 列表
 }
 
 // UpdateTaskOptions represents options for updating a task
@@ -79,6 +81,33 @@ func CreateTask(opts CreateTaskOptions, userAccessToken string) (*TaskInfo, erro
 			Href(href).
 			Build()
 		taskBuilder.Origin(origin)
+	}
+
+	// 负责人列表
+	if len(opts.Assignees) > 0 {
+		var members []*larktask.Member
+		for _, id := range opts.Assignees {
+			m := larktask.NewMemberBuilder().
+				Id(id).
+				Type("user").
+				Role("assignee").
+				Build()
+			members = append(members, m)
+		}
+		taskBuilder.Members(members)
+	}
+
+	// 加入指定的任务清单（群任务核心：清单关联了群聊，任务加入清单即成为群任务）
+	if len(opts.TasklistGuids) > 0 {
+		var tasklists []*larktask.TaskInTasklistInfo
+		for _, guid := range opts.TasklistGuids {
+			g := guid // 避免循环变量捕获
+			tl := larktask.NewTaskInTasklistInfoBuilder().
+				TasklistGuid(g).
+				Build()
+			tasklists = append(tasklists, tl)
+		}
+		taskBuilder.Tasklists(tasklists)
 	}
 
 	req := larktask.NewCreateTaskReqBuilder().
@@ -516,19 +545,29 @@ func RemoveTaskReminders(taskGuid string, reminderIDs []string, userAccessToken 
 }
 
 // CreateTasklist 创建任务清单
-func CreateTasklist(name string, userAccessToken string) (*TasklistInfo, error) {
+// chatID 可选：传入群聊 chat_id（oc_xxx 格式）时，将群聊设为清单的编辑成员，
+// 群内所有成员自动获得编辑权限，实现"群任务"效果
+func CreateTasklist(name string, chatID string, userAccessToken string) (*TasklistInfo, error) {
 	client, err := GetClient()
 	if err != nil {
 		return nil, err
 	}
 
-	inputTasklist := larktask.NewInputTasklistBuilder().
-		Name(name).
-		Build()
+	builder := larktask.NewInputTasklistBuilder().Name(name)
+
+	// 关联群聊：将 chat 设为清单成员（editor），群内所有人自动获得编辑权限
+	if chatID != "" {
+		member := larktask.NewMemberBuilder().
+			Id(chatID).
+			Type("chat").
+			Role("editor").
+			Build()
+		builder.Members([]*larktask.Member{member})
+	}
 
 	req := larktask.NewCreateTasklistReqBuilder().
 		UserIdType("open_id").
-		InputTasklist(inputTasklist).
+		InputTasklist(builder.Build()).
 		Build()
 
 	resp, err := client.Task.V2.Tasklist.Create(Context(), req, UserTokenOption(userAccessToken)...)
