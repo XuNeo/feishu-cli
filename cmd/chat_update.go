@@ -34,10 +34,7 @@ var chatUpdateCmd = &cobra.Command{
 			return err
 		}
 
-		token, err := resolveRequiredUserToken(cmd)
-		if err != nil {
-			return err
-		}
+		token := resolveOptionalUserTokenWithFallback(cmd)
 		chatID := args[0]
 		name, _ := cmd.Flags().GetString("name")
 		description, _ := cmd.Flags().GetString("description")

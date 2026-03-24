@@ -75,6 +75,10 @@ feishu-cli msg history \
 # 指定时间范围（⚠️ start-time/end-time 是秒级，不是毫秒）
 feishu-cli msg history --container-id oc_xxx --container-id-type chat \
   --start-time 1773778860 -o json
+
+# 翻页
+feishu-cli msg history --container-id oc_xxx --container-id-type chat \
+  --page-token "上次返回的token" -o json
 ```
 
 话题群需要额外获取线程回复 → 读 `references/thread-replies.md`
@@ -97,29 +101,15 @@ import json, datetime
 ts = int(msg['create_time']) // 1000  # ⚠️ 毫秒转秒
 c = json.loads(msg['body']['content'])
 if msg['msg_type'] == 'post':
-    text = ' '.join(el.get('text', el.get('image_key', ''))
-                    for para in c.get('content', []) for el in para)
+    parts = []
+    for para in c.get('content', []):
+        for el in para:
+            if el.get('tag') == 'text': parts.append(el.get('text', ''))
+            elif el.get('tag') == 'img': parts.append(f"[图片]{el.get('image_key','')}")
+            elif el.get('tag') == 'a': parts.append(el.get('text', el.get('href', '')))
+    text = ' '.join(parts)
 else:
-    text = c.get('text', c.get('image_key', str(c)[:100]))
-```
-
-话题群需要额外获取线程回复 → 读 `references/thread-replies.md`
-
-### 解析消息内容
-
-`body.content` 是 JSON 字符串：
-
-| msg_type | content |
-|----------|---------|
-| text | `{"text":"内容"}` |
-| image | `{"image_key":"img_xxx"}` |
-| file | `{"file_key":"xxx","file_name":"..."}` |
-| interactive | 卡片 JSON |
-
-```python
-import json
-content = json.loads(msg['body']['content'])
-text = content.get('text', '')
+    text = c.get('text', c.get('image_key', ''))
 ```
 
 ---
@@ -183,8 +173,8 @@ feishu-cli msg download-resource \
 ## 场景四：群聊信息管理
 
 ```bash
-# 查群详情
-feishu-cli chat get oc_xxx -o json
+# 查群详情（注意：chat get 不支持 -o json，默认就是 JSON 输出）
+feishu-cli chat get oc_xxx
 
 # 查群成员
 feishu-cli chat member list oc_xxx --page-size 100
@@ -202,6 +192,10 @@ feishu-cli chat delete oc_xxx
 ```
 
 > `chat create` 和 `chat link` 仅支持 App Token（Bot 身份），不需要 User Token。
+
+> **转让群主 Token 策略**：`chat update --owner-id` 会自动选择 Token：
+> - 已登录（有 User Token）且你是群主 → 用 User Token 转让
+> - 未登录或 User Token 不可用 → 回退到 App Token（Bot 身份），适用于 Bot 创建的群
 
 ---
 
